@@ -1,8 +1,6 @@
 # Builder stage
 FROM node:lts-alpine AS builder
 
-RUN npm install -g yarn
-
 WORKDIR /app
 
 COPY package.json ./
@@ -14,8 +12,6 @@ RUN yarn build
 
 # Runner stage
 FROM node:lts-alpine
-
-RUN npm install -g yarn
 
 WORKDIR /app
 
@@ -40,5 +36,7 @@ RUN arch_out=$(uname -m) \
 # RUN npm explore lmdb -- npm run install
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/.env ./.env
 
 CMD yarn start
