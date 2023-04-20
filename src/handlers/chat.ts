@@ -1,5 +1,4 @@
 import type {ChatMessage as ChatResponseV4} from 'chatgpt';
-import type {ChatResponse as ChatResponseV3} from 'chatgpt-v3';
 import _ from 'lodash';
 import type TelegramBot from 'node-telegram-bot-api';
 import telegramifyMarkdown from 'telegramify-markdown';
@@ -94,16 +93,10 @@ class ChatHandler {
         text,
         chatId,
         _.throttle(
-          async (partialResponse: ChatResponseV3 | ChatResponseV4) => {
-            const resText =
-              this._api.apiType == 'browser'
-                ? (partialResponse as ChatResponseV3).response
-                : (partialResponse as ChatResponseV4).text;
+          async (partialResponse: ChatResponseV4) => {
+            const resText = partialResponse.text;
             reply = await this._editMessage(reply, resText);
-            const parentMessageId =
-              this._api.apiType == 'browser'
-                ? (partialResponse as ChatResponseV3).messageId
-                : (partialResponse as ChatResponseV4).id;
+            const parentMessageId = partialResponse.id;
 
             await this._db.updateContext(chatId, {
               conversationId: partialResponse.conversationId,
@@ -115,10 +108,7 @@ class ChatHandler {
           {leading: true, trailing: false}
         )
       );
-      const resText =
-        this._api.apiType == 'browser'
-          ? (res as ChatResponseV3).response
-          : (res as ChatResponseV4).text;
+      const resText = (res as ChatResponseV4).text;
       await this._editMessage(reply, resText);
 
       if (this.debug >= 1) logWithTime(`📨 Response:\n${resText}`);

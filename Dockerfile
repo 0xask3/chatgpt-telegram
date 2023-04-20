@@ -1,26 +1,26 @@
 # Builder stage
 FROM node:lts-alpine AS builder
 
-RUN npm install -g pnpm
+RUN npm install -g yarn
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --ignore-scripts 
+COPY package.json ./
+RUN yarn install --frozen-lockfile --ignore-scripts 
 
 COPY . .
-RUN pnpm build
+RUN yarn build
 
 
 # Runner stage
 FROM node:lts-alpine
 
-RUN npm install -g pnpm
+RUN npm install -g yarn
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --ignore-scripts --prod --no-optional
+COPY package.json ./
+RUN yarn install --frozen-lockfile --ignore-scripts --prod --no-optional
 
 # Install prebuilt lmdb binary
 RUN arch_out=$(uname -m) \
@@ -33,12 +33,12 @@ RUN arch_out=$(uname -m) \
     else \
         ARCH=${arch_out}; \
     fi \
- && LMDB_VER=$(pnpm list lmdb | grep lmdb | awk '{print $2}') \
- && pnpm add @lmdb/lmdb-linux-$ARCH@$LMDB_VER --ignore-scripts --prod --no-optional
+ && LMDB_VER=$(yarn list lmdb | grep lmdb | awk '{print $2}') \
+ && yarn add @lmdb/lmdb-linux-$ARCH@$LMDB_VER --ignore-scripts --prod --no-optional
 # We can also build it ourselves:
 # RUN apk add --no-cache python3 build-base
 # RUN npm explore lmdb -- npm run install
 
 COPY --from=builder /app/dist ./dist
 
-CMD pnpm start
+CMD yarn start

@@ -38,24 +38,7 @@ function loadConfig(): Config {
   let apiBrowserCfg: APIBrowserOptions | undefined;
   let apiOfficialCfg: APIOfficialOptions | undefined;
   let apiUnofficialCfg: APIUnofficialOptions | undefined;
-  if (apiType == 'browser') {
-    apiBrowserCfg = {
-      email: config.get<string>('api.browser.email'),
-      password: config.get<string>('api.browser.password'),
-      isGoogleLogin: tryGet<boolean>('api.browser.isGoogleLogin') || false,
-      isProAccount: tryGet<boolean>('api.browser.isProAccount') || false,
-      executablePath:
-        tryGet<string>('api.browser.executablePath') ||
-        process.env.PUPPETEER_EXECUTABLE_PATH ||
-        undefined,
-      proxyServer: tryGet<string>('proxy') || undefined,
-      nopechaKey: tryGet<string>('api.browser.nopechaKey') || undefined,
-      captchaToken: tryGet<string>('api.browser.captchaToken') || undefined,
-      userDataDir: tryGet<string>('api.browser.userDataDir') || undefined,
-      timeoutMs: tryGet<number>('api.browser.timeoutMs') || undefined,
-      debug: config.get<number>('debug') >= 2,
-    };
-  } else if (apiType == 'official') {
+  if (apiType == 'official') {
     apiOfficialCfg = {
       apiKey: config.get<string>('api.official.apiKey'),
       apiBaseUrl: tryGet<string>('api.official.apiBaseUrl') || undefined,
@@ -74,9 +57,8 @@ function loadConfig(): Config {
     };
   } else if (apiType == 'unofficial') {
     apiUnofficialCfg = {
-      accessToken: String(process.env.ACCESS_TOKEN) || "",
-      apiReverseProxyUrl:
-        String(process.env.REVERSE_PROXY) || undefined,
+      accessToken: String(process.env.ACCESS_TOKEN) || '',
+      apiReverseProxyUrl: String(process.env.REVERSE_PROXY) || undefined,
       model: tryGet<string>('api.unofficial.model') || undefined,
       timeoutMs: tryGet<number>('api.unofficial.timeoutMs') || undefined,
       fetch: fetchFn,
@@ -89,7 +71,7 @@ function loadConfig(): Config {
   const cfg = {
     debug: tryGet<number>('debug') || 1,
     bot: {
-      token: String(process.env.BOT_TOKEN) || "",
+      token: String(process.env.BOT_TOKEN) || '',
       userIds: tryGet<number[]>('bot.userIds') || [],
       groupIds: tryGet<number[]>('bot.groupIds') || [],
       chatCmd: tryGet<string>('bot.chatCmd') || '/chat',

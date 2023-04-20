@@ -3,16 +3,7 @@ import type {
   ChatGPTUnofficialProxyAPI,
   ChatMessage as ChatResponseV4,
 } from 'chatgpt';
-import type {
-  ChatGPTAPIBrowser,
-  ChatResponse as ChatResponseV3,
-} from 'chatgpt-v3';
-import {
-  APIBrowserOptions,
-  APIOfficialOptions,
-  APIOptions,
-  APIUnofficialOptions,
-} from './types';
+import {APIOfficialOptions, APIOptions, APIUnofficialOptions} from './types';
 import {logWithTime} from './utils';
 import {DB} from './db';
 
@@ -20,12 +11,7 @@ class ChatGPT {
   debug: number;
   readonly apiType: string;
   protected _opts: APIOptions;
-  protected _api:
-    | ChatGPTAPI
-    | ChatGPTAPIBrowser
-    | ChatGPTUnofficialProxyAPI
-    | undefined;
-  protected _apiBrowser: ChatGPTAPIBrowser | undefined;
+  protected _api: ChatGPTAPI | ChatGPTUnofficialProxyAPI | undefined;
   protected _apiOfficial: ChatGPTAPI | undefined;
   protected _apiUnofficialProxy: ChatGPTUnofficialProxyAPI | undefined;
   protected _timeoutMs: number | undefined;
@@ -40,15 +26,7 @@ class ChatGPT {
   }
 
   init = async () => {
-    if (this._opts.type == 'browser') {
-      const {ChatGPTAPIBrowser} = await import('chatgpt-v3');
-      this._apiBrowser = new ChatGPTAPIBrowser(
-        this._opts.browser as APIBrowserOptions
-      );
-      await this._apiBrowser.initSession();
-      this._api = this._apiBrowser;
-      this._timeoutMs = this._opts.browser?.timeoutMs;
-    } else if (this._opts.type == 'official') {
+    if (this._opts.type == 'official') {
       const {ChatGPTAPI} = await import('chatgpt');
       this._apiOfficial = new ChatGPTAPI(
         this._opts.official as APIOfficialOptions
@@ -71,7 +49,7 @@ class ChatGPT {
   sendMessage = async (
     text: string,
     chatId: number,
-    onProgress?: (res: ChatResponseV3 | ChatResponseV4) => void
+    onProgress?: (res: ChatResponseV4) => void
   ) => {
     if (!this._api) return;
 
@@ -82,7 +60,7 @@ class ChatGPT {
       parentMessageId: contextDB?.parentMessageId,
     };
 
-    let res: ChatResponseV3 | ChatResponseV4;
+    let res: ChatResponseV4;
     if (this.apiType == 'official') {
       if (!this._apiOfficial) return;
       res = await this._apiOfficial.sendMessage(text, {
@@ -102,16 +80,7 @@ class ChatGPT {
   };
 
   resetThread = async (chatId: number) => {
-    if (this._apiBrowser) {
-      await this._apiBrowser.resetThread();
-    }
     await this._db.clearContext(chatId);
-  };
-
-  refreshSession = async () => {
-    if (this._apiBrowser) {
-      await this._apiBrowser.refreshSession();
-    }
   };
 }
 

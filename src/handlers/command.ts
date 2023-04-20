@@ -47,8 +47,7 @@ class CommandHandler {
             'Command list:\n' +
             `(When using a command in a group, make sure to include a mention after the command, like /help@${botUsername}).\n` +
             '  • /help Show help information.\n' +
-            '  • /reset Reset the current chat thread and start a new one.\n' +
-            '  • /reload (admin required) Refresh the ChatGPT session.'
+            '  • /reset Reset the current chat thread and start a new one.\n'
         );
         break;
 
@@ -60,23 +59,6 @@ class CommandHandler {
           '🔄 The chat thread has been reset. New chat thread started.'
         );
         logWithTime(`🔄 Chat thread reset by ${userInfo}.`);
-        break;
-
-      case '/reload':
-        if (this._opts.userIds.indexOf(msg.from?.id ?? 0) == -1) {
-          await this._bot.sendMessage(
-            msg.chat.id,
-            '⛔️ Sorry, you do not have the permission to run this command.'
-          );
-          logWithTime(
-            `⚠️ Permission denied for "${command}" from ${userInfo}.`
-          );
-        } else {
-          await this._bot.sendChatAction(msg.chat.id, 'typing');
-          await this._api.refreshSession();
-          await this._bot.sendMessage(msg.chat.id, '🔄 Session refreshed.');
-          logWithTime(`🔄 Session refreshed by ${userInfo}.`);
-        }
         break;
 
       default:
