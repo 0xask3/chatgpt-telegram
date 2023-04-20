@@ -1,0 +1,17 @@
+{
+  "debug": 1,
+  "bot": {
+    "groupIds": [], 
+    "userIds": [], 
+    "chatCmd": "/chat",
+    "queue": true
+  },
+  "api": {
+    "type": "unofficial", 
+    "unofficial": {
+      "model": "",
+      "timeoutMs": 120000
+    }
+  },
+  "proxy": ""
+}

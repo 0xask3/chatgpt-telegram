@@ -100,9 +100,18 @@ class ChatHandler {
                 ? (partialResponse as ChatResponseV3).response
                 : (partialResponse as ChatResponseV4).text;
             reply = await this._editMessage(reply, resText);
+            const parentMessageId =
+              this._api.apiType == 'browser'
+                ? (partialResponse as ChatResponseV3).messageId
+                : (partialResponse as ChatResponseV4).id;
+
+            await this._db.updateContext(chatId, {
+              conversationId: partialResponse.conversationId,
+              parentMessageId,
+            });
             await this._bot.sendChatAction(chatId, 'typing');
           },
-          3000,
+          1000,
           {leading: true, trailing: false}
         )
       );
@@ -115,11 +124,7 @@ class ChatHandler {
       if (this.debug >= 1) logWithTime(`📨 Response:\n${resText}`);
     } catch (err) {
       logWithTime('⛔️ ChatGPT API error:', (err as Error).message);
-      await this._db.clearContext(chatId);
-      this._bot.sendMessage(
-        chatId,
-        "⚠️ Sorry, I'm having trouble connecting to the server, please try again later."
-      );
+      this._bot.sendMessage(chatId, `\n ❗️${(err as Error).message}`);
     }
 
     // Update queue order after finishing current request

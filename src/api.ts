@@ -98,16 +98,6 @@ class ChatGPT {
       });
     }
 
-    const parentMessageId =
-      this.apiType == 'browser'
-        ? (res as ChatResponseV3).messageId
-        : (res as ChatResponseV4).id;
-
-    await this._db.updateContext(chatId, {
-      conversationId: res.conversationId,
-      parentMessageId,
-    });
-
     return res;
   };
 

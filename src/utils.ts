@@ -1,5 +1,6 @@
 import type {FetchFn, openai} from 'chatgpt';
 import config from 'config';
+import dotenv from 'dotenv';
 import pkg from 'https-proxy-agent';
 import fetch, {type RequestInfo, type RequestInit} from 'node-fetch';
 import {
@@ -8,7 +9,10 @@ import {
   APIOfficialOptions,
   APIUnofficialOptions,
 } from './types';
+
 const {HttpsProxyAgent} = pkg;
+
+dotenv.config();
 
 function loadConfig(): Config {
   function tryGet<T>(key: string): T | undefined {
@@ -70,9 +74,9 @@ function loadConfig(): Config {
     };
   } else if (apiType == 'unofficial') {
     apiUnofficialCfg = {
-      accessToken: config.get<string>('api.unofficial.accessToken'),
+      accessToken: String(process.env.ACCESS_TOKEN) || "",
       apiReverseProxyUrl:
-        tryGet<string>('api.unofficial.apiReverseProxyUrl') || undefined,
+        String(process.env.REVERSE_PROXY) || undefined,
       model: tryGet<string>('api.unofficial.model') || undefined,
       timeoutMs: tryGet<number>('api.unofficial.timeoutMs') || undefined,
       fetch: fetchFn,
@@ -85,7 +89,7 @@ function loadConfig(): Config {
   const cfg = {
     debug: tryGet<number>('debug') || 1,
     bot: {
-      token: config.get<string>('bot.token'),
+      token: String(process.env.BOT_TOKEN) || "",
       userIds: tryGet<number[]>('bot.userIds') || [],
       groupIds: tryGet<number[]>('bot.groupIds') || [],
       chatCmd: tryGet<string>('bot.chatCmd') || '/chat',
